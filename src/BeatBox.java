@@ -13,9 +13,12 @@ public class BeatBox {
     JPanel labelPanel = new JPanel();
     JPanel checkBoxPanel = new JPanel();
     JPanel buttonPanel = new JPanel();
+    JButton startButton;
     Orchestra orchestra = new Orchestra();
     static JCheckBox[] checkBoxes = new JCheckBox[256];
     StartButtonActionListener startButtonActionListener = new StartButtonActionListener();
+    CheckBoxItemListener checkBoxItemListener = new CheckBoxItemListener();
+    StopButtonActionListener stopButtonActionListener = new StopButtonActionListener();
     String[] labels = {"Bass Drum","Closed Hi-Hat", "Open Hi-Hat", "Acoustic Snare", "Crash Cymbal", "Hand Clap",
             "High Tom", "Hi Bongo", "Maracas", "Whistle", "Low Conga", "Cowbell", "Vibralap", "Low-mid Tom",
             "High Agoo", "Open Hi Conga"};
@@ -66,13 +69,14 @@ public class BeatBox {
             checkBoxes[checkBoxes.length-i] = checkBox;
             checkBox.setSelected(false);
             checkBoxPanel.add(checkBox);
+            checkBox.addItemListener(checkBoxItemListener);
         }
 
     }
     void  createButtons(){
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         Font font = new Font("TimesRoman", Font.BOLD, 22);
-        JButton startButton= new JButton("Start");
+        startButton= new JButton("Start");
         JButton stopButton= new JButton("Stop");
         JButton tempoUpButton= new JButton("tempoUp");
         JButton tempoDownButton= new JButton("tempoDown");
@@ -85,6 +89,26 @@ public class BeatBox {
         buttonPanel.add(tempoUpButton);
         buttonPanel.add(tempoDownButton);
         startButton.addActionListener(startButtonActionListener);
+        stopButton.addActionListener(stopButtonActionListener);
+    }
+    class CheckBoxItemListener implements ItemListener{
+
+        @Override
+        public void itemStateChanged(ItemEvent itemEvent) {
+           if (!(orchestra.sequencer==null)){
+           orchestra.sequencer.stop();
+           startButton.doClick();}
+        }
+    }
+
+    class StopButtonActionListener implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if (!(orchestra.sequencer==null)){
+                orchestra.sequencer.stop(); }
+
+        }
     }
 
     class StartButtonActionListener implements ActionListener{
@@ -94,14 +118,25 @@ public class BeatBox {
             orchestra.initInstruments();
             orchestra.createTrack();
             orchestra.playTrack();
+        }
+    }
+    class TempoUpActionPerformd implements ActionListener{
 
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if (!(orchestra.sequencer==null)){
+                float tempo = orchestra.sequencer.getTempoInBPM();
+                tempo+=10f;
+                orchestra.sequencer.setTempoInBPM(tempo);
+            }
 
         }
     }
 }
 
+
 class  Orchestra {
-    Sequencer sequencer;
+    Sequencer sequencer=null;
     Sequence sequence;
     Track track;
     ArrayList<Integer> instruments ;
@@ -147,26 +182,14 @@ class  Orchestra {
                 noteAdd(144, instrument, note,100, tick);
                 System.out.println("Instrument" +instruments.get(instrument) + ", Note: "+ note+" , Tick: "+ tick);
                 noteAdd(128, instrument, note, 100, tickend);
-
-
             }
-
         }
-
-                   /*     noteAdd(144, 1, 94,100, 5);
-                        noteAdd(128, 1, 40, 100, 40);
-                        noteAdd(144, 2, 50, 100, 10);
-                        noteAdd(128, 2, 60, 100, 15);
-                        noteAdd(144, 3, 70, 100, 20);
-                        noteAdd(128, 3, 70, 100, 45);
-                        noteAdd(144, 4, 94, 100, 50);
-                        noteAdd(128, 4, 40, 100, 75);*/
                     }
    void playTrack() {
        try {
                         sequencer.setSequence(sequence);
                         sequencer.setTempoInBPM(220);
-
+                        sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
                         sequencer.start();
 
            }
