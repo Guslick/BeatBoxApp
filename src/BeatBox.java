@@ -26,7 +26,7 @@ public class BeatBox {
 
     void go(){
         beatBox.build_interface();
-        orchestra.initInstruments();
+
 
     }
     void build_interface(){
@@ -91,6 +91,7 @@ public class BeatBox {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            orchestra.initInstruments();
             orchestra.createTrack();
             orchestra.playTrack();
 
@@ -128,7 +129,9 @@ class  Orchestra {
         } catch (Exception exception) {
                     exception.printStackTrace();}
             for (int instrument : instruments ) {
-                noteAdd(192, instruments.indexOf(instrument)+1,instrument, 100, 1);
+                int realInstIndex = instruments.indexOf(instrument)+1;
+                noteAdd(192, realInstIndex,instrument, 100, 1);
+                System.out.println("Channel "+ realInstIndex +" Instrument " +instrument);
             }
             }
 
@@ -138,12 +141,13 @@ class  Orchestra {
             if (BeatBox.checkBoxes[i].isSelected()) {
                 int position = (i) % 16;
                 int instrument = (i)/16;
-                int tick = (position)*8+1;
-                int note = position+50;
+                int tick = (position)*3+1;
+                int tickend = (position)*3+9;
+                int note = 50;
                 noteAdd(144, instrument, note,100, tick);
-            //    position=(position-1)/8;
                 System.out.println("Instrument" +instruments.get(instrument) + ", Note: "+ note+" , Tick: "+ tick);
-                noteAdd(128, instrument, note, 100, tick);
+                noteAdd(128, instrument, note, 100, tickend);
+
 
             }
 
@@ -162,7 +166,10 @@ class  Orchestra {
        try {
                         sequencer.setSequence(sequence);
                         sequencer.setTempoInBPM(220);
-                        sequencer.start();}
+
+                        sequencer.start();
+
+           }
        catch (Exception exception) {}
     }
 
