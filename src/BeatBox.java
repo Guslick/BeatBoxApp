@@ -19,22 +19,26 @@ public class BeatBox {
     StartButtonActionListener startButtonActionListener = new StartButtonActionListener();
     CheckBoxItemListener checkBoxItemListener = new CheckBoxItemListener();
     StopButtonActionListener stopButtonActionListener = new StopButtonActionListener();
-    String[] labels = {"Bass Drum","Closed Hi-Hat", "Open Hi-Hat", "Acoustic Snare", "Crash Cymbal", "Hand Clap",
+    TempoUpActionPerformd tempoUpActionPerformd = new TempoUpActionPerformd();
+    TempoDownActionPerformd tempoDownActionPerformd = new TempoDownActionPerformd();
+    String[] labels = {"Bass Drum", "Closed Hi-Hat", "Open Hi-Hat", "Acoustic Snare", "Crash Cymbal", "Hand Clap",
             "High Tom", "Hi Bongo", "Maracas", "Whistle", "Low Conga", "Cowbell", "Vibralap", "Low-mid Tom",
             "High Agoo", "Open Hi Conga"};
-    public  static void main (String[] args) {
-        beatBox =  new BeatBox();
+
+    public static void main(String[] args) {
+        beatBox = new BeatBox();
         beatBox.go();
     }
 
-    void go(){
+    void go() {
         beatBox.build_interface();
 
 
     }
-    void build_interface(){
+
+    void build_interface() {
         JFrame frame = new JFrame();
-        frame.setSize(1200,530);
+        frame.setSize(1200, 530);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
@@ -42,8 +46,8 @@ public class BeatBox {
         frame.getContentPane().add(BorderLayout.CENTER, checkBoxPanel);
         frame.getContentPane().add(BorderLayout.EAST, buttonPanel);
 
-        labelPanel.setLayout( new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
-        checkBoxPanel.setLayout(new GridLayout(16,16));
+        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+        checkBoxPanel.setLayout(new GridLayout(16, 16));
 
         beatBox.createLabels();
         beatBox.createCheckBoxes();
@@ -53,33 +57,35 @@ public class BeatBox {
         frame.setVisible(true);
     }
 
-    void createLabels(){
+    void createLabels() {
         Font font = new Font("TimesRoman", Font.BOLD, 22);
 
-        for (int i=labels.length; i>0; i--){
+        for (int i = labels.length; i > 0; i--) {
             JLabel label = new JLabel(labels[labels.length - i]);
             label.setFont(font);
             labelPanel.add(label);
         }
     }
-    void createCheckBoxes(){
 
-       for (int i = checkBoxes.length; i>0; i--){
+    void createCheckBoxes() {
+
+        for (int i = checkBoxes.length; i > 0; i--) {
             JCheckBox checkBox = new JCheckBox();
-            checkBoxes[checkBoxes.length-i] = checkBox;
+            checkBoxes[checkBoxes.length - i] = checkBox;
             checkBox.setSelected(false);
             checkBoxPanel.add(checkBox);
             checkBox.addItemListener(checkBoxItemListener);
         }
 
     }
-    void  createButtons(){
+
+    void createButtons() {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         Font font = new Font("TimesRoman", Font.BOLD, 22);
-        startButton= new JButton("Start");
-        JButton stopButton= new JButton("Stop");
-        JButton tempoUpButton= new JButton("tempoUp");
-        JButton tempoDownButton= new JButton("tempoDown");
+        startButton = new JButton("Start");
+        JButton stopButton = new JButton("Stop");
+        JButton tempoUpButton = new JButton("tempoUp");
+        JButton tempoDownButton = new JButton("tempoDown");
         startButton.setFont(font);
         stopButton.setFont(font);
         tempoUpButton.setFont(font);
@@ -90,28 +96,34 @@ public class BeatBox {
         buttonPanel.add(tempoDownButton);
         startButton.addActionListener(startButtonActionListener);
         stopButton.addActionListener(stopButtonActionListener);
+        tempoUpButton.addActionListener(tempoUpActionPerformd);
+        tempoDownButton.addActionListener(tempoDownActionPerformd);
     }
-    class CheckBoxItemListener implements ItemListener{
+
+    class CheckBoxItemListener implements ItemListener {
 
         @Override
         public void itemStateChanged(ItemEvent itemEvent) {
-           if (!(orchestra.sequencer==null)){
-           orchestra.sequencer.stop();
-           startButton.doClick();}
+            if (!(orchestra.sequencer == null)) {
+                orchestra.sequencer.stop();
+                startButton.doClick();
+            }
         }
     }
 
-    class StopButtonActionListener implements ActionListener{
+
+    class StopButtonActionListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            if (!(orchestra.sequencer==null)){
-                orchestra.sequencer.stop(); }
+            if (!(orchestra.sequencer == null)) {
+                orchestra.sequencer.stop();
+            }
 
         }
     }
 
-    class StartButtonActionListener implements ActionListener{
+    class StartButtonActionListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -120,17 +132,32 @@ public class BeatBox {
             orchestra.playTrack();
         }
     }
-    class TempoUpActionPerformd implements ActionListener{
+
+    class TempoUpActionPerformd implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            if (!(orchestra.sequencer==null)){
+            if (!(orchestra.sequencer == null)) {
                 float tempo = orchestra.sequencer.getTempoInBPM();
-                tempo+=10f;
+                tempo += 10;
                 orchestra.sequencer.setTempoInBPM(tempo);
+                System.out.println(tempo);
             }
 
         }
+
+    }
+
+    class TempoDownActionPerformd implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if (!(orchestra.sequencer == null)) {
+                float tempo = orchestra.sequencer.getTempoInBPM();
+                tempo -= 10;
+                orchestra.sequencer.setTempoInBPM(tempo);
+            }
+        }
+
     }
 }
 
@@ -140,6 +167,7 @@ class  Orchestra {
     Sequence sequence;
     Track track;
     ArrayList<Integer> instruments ;
+
 
     void noteAdd(int comm, int chan, int one, int two, int tick) {
         MidiEvent event = null;
